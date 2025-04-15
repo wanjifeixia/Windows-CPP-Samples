@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{3bf028c8-7e98-4c89-b641-10f93e6fead9}</ProjectGuid>
-    <RootNamespace>TestTaskScheduler</RootNamespace>
+    <ProjectGuid>{4c652980-2bb0-45da-9b89-807828b329b8}</ProjectGuid>
+    <RootNamespace>TestCom</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -139,7 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="TestTaskScheduler.cpp" />
+    <ClCompile Include="TestCom.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
