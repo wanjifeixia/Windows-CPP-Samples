@@ -3,6 +3,7 @@
 #include <string>
 #include <Shlwapi.h>
 #include <vector>
+#include <fstream>
 
 #pragma comment(lib, "Shlwapi.lib")
 
@@ -175,7 +176,39 @@ void DeleteFolder(const std::wstring& folderPath)
 	}
 }
 
-int wmain(int argc, wchar_t* argv[])
+bool BlockFile(const std::wstring& filePath) {
+	// 构造文件的 Zone.Identifier 数据流路径
+	std::wstring zoneIdentifierPath = filePath + L":Zone.Identifier";
+
+	// 打开数据流文件并写入标记内容
+	std::ofstream zoneFile(zoneIdentifierPath);
+	if (zoneFile.is_open()) {
+		// 写入 "ZoneId=3" 表示文件来自互联网
+		zoneFile << "[ZoneTransfer]\nZoneId=3";
+		zoneFile.close();
+		return true;
+	}
+	else {
+		std::wcerr << L"添加锁定失败，无法打开文件。" << std::endl;
+		return false;
+	}
+}
+
+bool UnblockFile(const std::wstring& filePath) {
+	// 构造文件的 Zone.Identifier 数据流路径
+	std::wstring zoneIdentifierPath = filePath + L":Zone.Identifier";
+
+	// 使用 DeleteFile 删除数据流
+	if (DeleteFile(zoneIdentifierPath.c_str())) {
+		return true;
+	}
+	else {
+		std::wcerr << L"解除锁定失败，错误代码: " << GetLastError() << std::endl;
+		return false;
+	}
+}
+
+int main(int argc, wchar_t* argv[])
 {
 	//设置本地化，让控制台输出中文
 	std::locale::global(std::locale(""));
@@ -191,6 +224,8 @@ int wmain(int argc, wchar_t* argv[])
 		std::wcout << L"输入1 = 使用ReplaceFile替换文件" << std::endl;
 		std::wcout << L"输入2 = 使用FindFirstFile通配符路径匹配 C:\\Windows\\*?????.exe*" << std::endl;
 		std::wcout << L"输入3 = 删除整个文件夹 D:\\WPS Office" << std::endl;
+		std::wcout << L"输入4 = 文件添加锁定标记 D:\\toolss\\Spy.exe" << std::endl;
+		std::wcout << L"输入5 = 文件解除锁定标记 D:\\toolss\\Spy.exe" << std::endl;
 		std::wcin >> iInput;
 
 		if (iInput == 1)
@@ -213,6 +248,26 @@ int wmain(int argc, wchar_t* argv[])
 		{
 			std::wstring folderPath = L"D:\\WPS Office";
 			DeleteFolder(folderPath);
+		}
+		else if (iInput == 4)
+		{
+			std::wstring filePath = L"D:\\toolss\\Spy.exe";
+			if (BlockFile(filePath)) {
+				std::wcout << L"文件已添加锁定标记。" << std::endl;
+			}
+			else {
+				std::wcout << L"文件添加锁定标记失败。" << std::endl;
+			}
+		}
+		else if (iInput == 5)
+		{
+			std::wstring filePath = L"D:\\toolss\\Spy.exe";
+			if (UnblockFile(filePath)) {
+				std::wcout << L"文件已解除锁定。" << std::endl;
+			}
+			else {
+				std::wcout << L"文件解除锁定失败。" << std::endl;
+			}
 		}
 	}
 	return 0;
