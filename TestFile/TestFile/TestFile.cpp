@@ -226,6 +226,7 @@ int main(int argc, wchar_t* argv[])
 		std::wcout << L"输入3 = 删除整个文件夹 D:\\WPS Office" << std::endl;
 		std::wcout << L"输入4 = 文件添加锁定标记 D:\\toolss\\Spy.exe" << std::endl;
 		std::wcout << L"输入5 = 文件解除锁定标记 D:\\toolss\\Spy.exe" << std::endl;
+		std::wcout << L"输入6 = 打开目录符号链接(SymbolicLink) C:\\CCCCCCCCC\\1111111" << std::endl;
 		std::wcin >> iInput;
 
 		if (iInput == 1)
@@ -267,6 +268,26 @@ int main(int argc, wchar_t* argv[])
 			}
 			else {
 				std::wcout << L"文件解除锁定失败。" << std::endl;
+			}
+		}
+		else if (iInput == 6)
+		{
+			HANDLE hDir = CreateFile(
+				L"C:\\CCCCCCCCC\\1111111",                // 文件夹路径
+				GENERIC_READ,                     // 访问权限
+				FILE_SHARE_READ | FILE_SHARE_WRITE, // 共享模式
+				NULL,                             // 安全属性
+				OPEN_EXISTING,                   // 创建方式
+				FILE_FLAG_BACKUP_SEMANTICS,     // 标志以打开文件夹
+				NULL                              // 模板文件句柄
+			);
+
+			if (hDir == INVALID_HANDLE_VALUE) {
+				std::cerr << "无法打开文件夹: C:\\CCCCCCCCC\\1111111 GetLastError:" << GetLastError() << std::endl;
+			}
+			else {
+				std::cout << "文件夹已成功打开！" << std::endl;
+				CloseHandle(hDir);
 			}
 		}
 	}
