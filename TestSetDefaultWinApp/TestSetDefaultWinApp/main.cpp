@@ -244,10 +244,12 @@ int main(int argc, char* argv[])
 
 		std::wcout << L"输入1 = 设置.pdf默认打开方式为MSEdgePDF" << std::endl;
 		std::wcout << L"输入2 = 设置.pdf默认打开方式为Applications\\NOTEPAD.EXE" << std::endl;
-		std::wcout << L"输入3 = 设置默认浏览器为ChromeHTML" << std::endl;
-		std::wcout << L"输入4 = 设置默认浏览器为FirefoxURL-308046B0AF4A39CB" << std::endl;
-		std::wcout << L"输入5 = 打开Windows的默认应用设置界面并设置Chrome为默认浏览器" << std::endl;
-		std::wcout << L"输入6 = 打开Windows的默认应用设置界面并设置Firefox为默认浏览器" << std::endl;
+		std::wcout << L"输入3 = 使用OpenWith.exe设置.pdf默认打开方式为MSEdgePDF" << std::endl;
+		std::wcout << L"输入4 = 使用OpenWith.exe设置.pdf默认打开方式为Applications\\NOTEPAD.EXE" << std::endl;
+		std::wcout << L"输入5 = 设置默认浏览器为ChromeHTML" << std::endl;
+		std::wcout << L"输入6 = 设置默认浏览器为FirefoxURL-308046B0AF4A39CB" << std::endl;
+		std::wcout << L"输入7 = 打开Windows的默认应用设置界面并设置Chrome为默认浏览器" << std::endl;
+		std::wcout << L"输入8 = 打开Windows的默认应用设置界面并设置Firefox为默认浏览器" << std::endl;
 		std::wcin >> iInput;
 
 		if (iInput == 1)
@@ -259,9 +261,9 @@ int main(int argc, char* argv[])
 			SetUserChoiceRegistry(L".pdf", L"MSEdgePDF", false, hash.get());
 
 			if (GetDefaultAppProgId(L".pdf") == L"MSEdgePDF")
-				std::wcout << L"设置成功" << std::endl;
+				std::wcout << L"设置成功,当前默认打开方式是:" << GetDefaultAppProgId(L".pdf") << std::endl;
 			else
-				std::wcout << L"设置失败" << std::endl;
+				std::wcout << L"设置失败,当前默认打开方式是:" << GetDefaultAppProgId(L".pdf") << std::endl;
 		}
 		else if (iInput == 2)
 		{
@@ -272,11 +274,45 @@ int main(int argc, char* argv[])
 			SetUserChoiceRegistry(L".pdf", L"Applications\\NOTEPAD.EXE", false, hash.get());
 
 			if (GetDefaultAppProgId(L".pdf") == L"Applications\\NOTEPAD.EXE")
-				std::wcout << L"设置成功" << std::endl;
+				std::wcout << L"设置成功,当前默认打开方式是:" << GetDefaultAppProgId(L".pdf") << std::endl;
 			else
-				std::wcout << L"设置失败" << std::endl;
+				std::wcout << L"设置失败,当前默认打开方式是:" << GetDefaultAppProgId(L".pdf") << std::endl;
 		}
 		else if (iInput == 3)
+		{
+			typedef BOOL(__cdecl* SET_USER_CHOICE)(LPCWSTR lpszExt, LPCWSTR lpszTargetApp);
+			HMODULE hDll = LoadLibraryW(L"SetUserChoiceDll.dll");
+			if (hDll)
+			{
+				SET_USER_CHOICE pSetUserChoice = (SET_USER_CHOICE)GetProcAddress(hDll, "SetUserChoice");
+				if (pSetUserChoice)
+					pSetUserChoice(L".pdf", L"MSEdgePDF");
+				FreeLibrary(hDll);
+			}
+
+			if (GetDefaultAppProgId(L".pdf") == L"MSEdgePDF")
+				std::wcout << L"设置成功,当前默认打开方式是:" << GetDefaultAppProgId(L".pdf") << std::endl;
+			else
+				std::wcout << L"设置失败,当前默认打开方式是:" << GetDefaultAppProgId(L".pdf") << std::endl;
+		}
+		else if (iInput == 4)
+		{
+			typedef BOOL(__cdecl* SET_USER_CHOICE)(LPCWSTR lpszExt, LPCWSTR lpszTargetApp);
+			HMODULE hDll = LoadLibraryW(L"SetUserChoiceDll.dll");
+			if (hDll)
+			{
+				SET_USER_CHOICE pSetUserChoice = (SET_USER_CHOICE)GetProcAddress(hDll, "SetUserChoice");
+				if (pSetUserChoice)
+					pSetUserChoice(L".pdf", L"Applications\\NOTEPAD.EXE");
+				FreeLibrary(hDll);
+			}
+
+			if (GetDefaultAppProgId(L".pdf") == L"Applications\\NOTEPAD.EXE")
+				std::wcout << L"设置成功,当前默认打开方式是:" << GetDefaultAppProgId(L".pdf") << std::endl;
+			else
+				std::wcout << L"设置失败,当前默认打开方式是:" << GetDefaultAppProgId(L".pdf") << std::endl;
+		}
+		else if (iInput == 5)
 		{
 			wstring strProgId = L"ChromeHTML";
 			wstring strHttp = GetDefaultAppProgId(L"http");
@@ -295,7 +331,7 @@ int main(int argc, char* argv[])
 			else
 				wcout << L"设置默认浏览器失败 http:" << strHttp << L" https:" << strHttps << endl;
 		}
-		else if (iInput == 4)
+		else if (iInput == 6)
 		{
 			wstring strProgId = L"FirefoxURL-308046B0AF4A39CB";
 			wstring strHttp = GetDefaultAppProgId(L"http");
@@ -320,13 +356,13 @@ int main(int argc, char* argv[])
 			else
 				wcout << L"设置默认浏览器失败 http:" << strHttp << L" https:" << strHttps << endl;
 		}
-		else if (iInput == 5)
+		else if (iInput == 7)
 		{
 			//打开Windows的默认应用设置界面
 			//ShellExecute(nullptr, L"open", L"ms-settings:defaultapps", nullptr, nullptr, SW_SHOWNORMAL);
 			ShellExecute(nullptr, L"open", L"ms-settings:defaultapps?registeredAppMachine=Google Chrome", nullptr, nullptr, SW_SHOWNORMAL);
 		}
-		else if (iInput == 6)
+		else if (iInput == 8)
 		{
 			//ShellExecute(nullptr, L"open", L"ms-settings:defaultapps?registeredAppUser=Firefox-308046B0AF4A39CB", nullptr, nullptr, SW_SHOWNORMAL);
 			ShellExecute(nullptr, L"open", L"ms-settings:defaultapps?registeredAppMachine=Firefox-308046B0AF4A39CB", nullptr, nullptr, SW_SHOWNORMAL);
