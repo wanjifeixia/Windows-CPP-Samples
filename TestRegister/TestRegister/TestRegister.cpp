@@ -296,6 +296,46 @@ const wchar_t* GetProcessBitness() {
 #endif
 }
 
+// 删除指定的注册表项及其子项
+LONG DeleteRegistryKey(HKEY hKeyRoot, LPCWSTR subKey) {
+	HKEY hKey;
+	LONG result = RegOpenKeyEx(hKeyRoot, subKey, 0, KEY_READ | KEY_WRITE, &hKey);
+	if (result != ERROR_SUCCESS) {
+		std::wcerr << L"Failed to open registry key: " << subKey << L" Error: " << result << std::endl;
+		return result;
+	}
+
+	DWORD subKeyCount = 0;
+	result = RegQueryInfoKey(hKey, NULL, NULL, NULL, &subKeyCount, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+	if (result != ERROR_SUCCESS) {
+		std::wcerr << L"Failed to query registry key info: " << subKey << L" Error: " << result << std::endl;
+		RegCloseKey(hKey);
+		return result;
+	}
+
+	if (subKeyCount > 0) {
+		WCHAR subKeyName[256];
+		DWORD subKeyNameSize = 256;
+
+		while (RegEnumKeyEx(hKey, 0, subKeyName, &subKeyNameSize, NULL, NULL, NULL, NULL) == ERROR_SUCCESS) {
+			result = DeleteRegistryKey(hKey, subKeyName);
+			if (result != ERROR_SUCCESS) {
+				RegCloseKey(hKey);
+				return result;
+			}
+			subKeyNameSize = 256; // Reset the buffer size
+		}
+	}
+
+	RegCloseKey(hKey);
+	result = RegDeleteKey(hKeyRoot, subKey);
+	if (result != ERROR_SUCCESS) {
+		std::wcerr << L"Failed to delete registry key: " << subKey << L" Error: " << result << std::endl;
+	}
+
+	return result;
+}
+
 int main()
 {
 	//设置本地化，让控制台输出中文
@@ -320,6 +360,7 @@ int main()
 		std::wcout << L"输入3 = RegCreateKeyEx创建注册表HKEY_LOCAL_MACHINE\\Software\\TestAAA\\TestBBB" << std::endl;
 		std::wcout << L"输入4 = RegOpenKeyEx先打开HKEY_LOCAL_MACHINE\\Software\\TestAAA，再打开子键TestBBB" << std::endl;
 		std::wcout << L"输入5 = RegDeleteTree递归删除HKEY_CURRENT_USER\\Software\\TestAAA和HKEY_LOCAL_MACHINE\\Software\\TestAAA" << std::endl;
+		std::wcout << L"输入6 = RegDeleteKey+RegEnumKeyEx递归删除HKEY_CURRENT_USER\\Software\\TestAAA和HKEY_LOCAL_MACHINE\\Software\\TestAAA" << std::endl;
 		std::wcin >> iInput;
 
 		if (iInput == 1)
@@ -343,6 +384,21 @@ int main()
 			//启用递归删除
 			TestRegDeleteKey(HKEY_CURRENT_USER, L"Software\\TestAAA", true, KEY_WOW64_64KEY);
 			TestRegDeleteKey(HKEY_LOCAL_MACHINE, L"Software\\TestAAA", true, KEY_WOW64_64KEY);
+		}
+		else if (iInput == 6)
+		{
+			LPCWSTR subKey = L"Software\\TestAAA";
+			LONG result = DeleteRegistryKey(HKEY_CURRENT_USER, subKey);
+			if (result == ERROR_SUCCESS)
+				std::wcout << L"递归删除注册表键成功: HKEY_CURRENT_USER\\" << subKey << std::endl;
+			else
+				std::wcerr << L"递归删除注册表键失败: HKEY_CURRENT_USER\\" << subKey << L" Error: " << result << std::endl;
+
+			result = DeleteRegistryKey(HKEY_LOCAL_MACHINE, subKey);
+			if (result == ERROR_SUCCESS)
+				std::wcout << L"递归删除注册表键成功: HKEY_LOCAL_MACHINE\\" << subKey << std::endl;
+			else
+				std::wcerr << L"递归删除注册表键失败: HKEY_LOCAL_MACHINE\\" << subKey << L" Error: " << result << std::endl;
 		}
 	}
 
