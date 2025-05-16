@@ -247,9 +247,10 @@ int main(int argc, char* argv[])
 		std::wcout << L"输入3 = 使用OpenWith.exe设置.pdf默认打开方式为MSEdgePDF" << std::endl;
 		std::wcout << L"输入4 = 使用OpenWith.exe设置.pdf默认打开方式为Applications\\NOTEPAD.EXE" << std::endl;
 		std::wcout << L"输入5 = 设置默认浏览器为ChromeHTML" << std::endl;
-		std::wcout << L"输入6 = 设置默认浏览器为FirefoxURL-308046B0AF4A39CB" << std::endl;
-		std::wcout << L"输入7 = 打开Windows的默认应用设置界面并设置Chrome为默认浏览器" << std::endl;
-		std::wcout << L"输入8 = 打开Windows的默认应用设置界面并设置Firefox为默认浏览器" << std::endl;
+		std::wcout << L"输入6 = 设置默认浏览器为MSEdgeHTM" << std::endl;
+		std::wcout << L"输入7 = 设置默认浏览器为FirefoxURL-308046B0AF4A39CB" << std::endl;
+		std::wcout << L"输入8 = 打开Windows的默认应用设置界面并设置Chrome为默认浏览器" << std::endl;
+		std::wcout << L"输入9 = 打开Windows的默认应用设置界面并设置Firefox为默认浏览器" << std::endl;
 		std::wcin >> iInput;
 
 		if (iInput == 1)
@@ -333,7 +334,7 @@ int main(int argc, char* argv[])
 		}
 		else if (iInput == 6)
 		{
-			wstring strProgId = L"FirefoxURL-308046B0AF4A39CB";
+			wstring strProgId = L"MSEdgeHTM";
 			wstring strHttp = GetDefaultAppProgId(L"http");
 			wstring strHttps = GetDefaultAppProgId(L"https");
 			wcout << L"设置默认浏览器之前 http:" << strHttp << L"\thttps:" << strHttps << endl;
@@ -343,9 +344,9 @@ int main(int argc, char* argv[])
 			SYSTEMTIME systemTime = {};
 			GetSystemTime(&systemTime);
 			auto hash = UserChoice::GenerateUserChoiceHash(L"http", sid.get(), strProgId.c_str(), systemTime);
-			SetUserChoiceRegistry(L"http", strProgId.c_str(), true, hash.get());
+			SetUserChoiceRegistry(L"http", strProgId.c_str(), false, hash.get());
 			auto hash1 = UserChoice::GenerateUserChoiceHash(L"https", sid.get(), strProgId.c_str(), systemTime);
-			SetUserChoiceRegistry(L"https", strProgId.c_str(), true, hash1.get());
+			SetUserChoiceRegistry(L"https", strProgId.c_str(), false, hash1.get());
 
 			strHttp = GetDefaultAppProgId(L"http");
 			strHttps = GetDefaultAppProgId(L"https");
@@ -358,11 +359,36 @@ int main(int argc, char* argv[])
 		}
 		else if (iInput == 7)
 		{
+			wstring strProgId = L"FirefoxURL-308046B0AF4A39CB";
+			wstring strHttp = GetDefaultAppProgId(L"http");
+			wstring strHttps = GetDefaultAppProgId(L"https");
+			wcout << L"设置默认浏览器之前 http:" << strHttp << L"\thttps:" << strHttps << endl;
+
+			//重命名注册表键(FireFox)
+			static std::unique_ptr<wchar_t[]> sid = UserChoice::GetCurrentUserStringSid();
+			SYSTEMTIME systemTime = {};
+			GetSystemTime(&systemTime);
+			auto hash = UserChoice::GenerateUserChoiceHash(L"http", sid.get(), strProgId.c_str(), systemTime);
+			SetUserChoiceRegistry(L"http", strProgId.c_str(), false, hash.get());
+			auto hash1 = UserChoice::GenerateUserChoiceHash(L"https", sid.get(), strProgId.c_str(), systemTime);
+			SetUserChoiceRegistry(L"https", strProgId.c_str(), false, hash1.get());
+
+			strHttp = GetDefaultAppProgId(L"http");
+			strHttps = GetDefaultAppProgId(L"https");
+			wcout << L"设置默认浏览器之后 http:" << strHttp << L"\thttps:" << strHttps << endl;
+
+			if (strHttp == strHttps && strHttps == strProgId)
+				wcout << L"设置默认浏览器成功" << endl;
+			else
+				wcout << L"设置默认浏览器失败 http:" << strHttp << L" https:" << strHttps << endl;
+		}
+		else if (iInput == 8)
+		{
 			//打开Windows的默认应用设置界面
 			//ShellExecute(nullptr, L"open", L"ms-settings:defaultapps", nullptr, nullptr, SW_SHOWNORMAL);
 			ShellExecute(nullptr, L"open", L"ms-settings:defaultapps?registeredAppMachine=Google Chrome", nullptr, nullptr, SW_SHOWNORMAL);
 		}
-		else if (iInput == 8)
+		else if (iInput == 9)
 		{
 			//ShellExecute(nullptr, L"open", L"ms-settings:defaultapps?registeredAppUser=Firefox-308046B0AF4A39CB", nullptr, nullptr, SW_SHOWNORMAL);
 			ShellExecute(nullptr, L"open", L"ms-settings:defaultapps?registeredAppMachine=Firefox-308046B0AF4A39CB", nullptr, nullptr, SW_SHOWNORMAL);
