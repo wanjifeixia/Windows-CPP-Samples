@@ -163,7 +163,7 @@ static bool SetUserChoiceRegistry(const wchar_t* aExt, const wchar_t* aProgID, c
 		// Unfortunately some kernel drivers lock a set of protocol and file
 		// association keys. Renaming a non-locked ancestor is sufficient to fix
 		// this.
-		ls = ::RegRenameKey(rawAssocKey, nullptr, L"EndeskTempKey");
+		ls = ::RegRenameKey(rawAssocKey, nullptr, L"RenameTempKey");
 		if (ls != ERROR_SUCCESS) {
 			return false;
 		}
@@ -248,7 +248,7 @@ int main(int argc, char* argv[])
 		std::wcout << L"输入4 = 使用OpenWith.exe设置.pdf默认打开方式为Applications\\NOTEPAD.EXE" << std::endl;
 		std::wcout << L"输入5 = 设置默认浏览器为ChromeHTML" << std::endl;
 		std::wcout << L"输入6 = 设置默认浏览器为MSEdgeHTM" << std::endl;
-		std::wcout << L"输入7 = 设置默认浏览器为FirefoxURL-308046B0AF4A39CB" << std::endl;
+		std::wcout << L"输入7 = 设置默认浏览器(使用重命名方案)为FirefoxURL-308046B0AF4A39CB" << std::endl;
 		std::wcout << L"输入8 = 打开Windows的默认应用设置界面并设置Chrome为默认浏览器" << std::endl;
 		std::wcout << L"输入9 = 打开Windows的默认应用设置界面并设置Firefox为默认浏览器" << std::endl;
 		std::wcin >> iInput;
@@ -369,9 +369,9 @@ int main(int argc, char* argv[])
 			SYSTEMTIME systemTime = {};
 			GetSystemTime(&systemTime);
 			auto hash = UserChoice::GenerateUserChoiceHash(L"http", sid.get(), strProgId.c_str(), systemTime);
-			SetUserChoiceRegistry(L"http", strProgId.c_str(), false, hash.get());
+			SetUserChoiceRegistry(L"http", strProgId.c_str(), true, hash.get());
 			auto hash1 = UserChoice::GenerateUserChoiceHash(L"https", sid.get(), strProgId.c_str(), systemTime);
-			SetUserChoiceRegistry(L"https", strProgId.c_str(), false, hash1.get());
+			SetUserChoiceRegistry(L"https", strProgId.c_str(), true, hash1.get());
 
 			strHttp = GetDefaultAppProgId(L"http");
 			strHttps = GetDefaultAppProgId(L"https");

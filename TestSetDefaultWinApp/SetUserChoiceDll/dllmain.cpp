@@ -218,7 +218,7 @@ static bool SetUserChoiceRegistry(const wchar_t* aExt, const wchar_t* aProgID, c
 		// Unfortunately some kernel drivers lock a set of protocol and file
 		// association keys. Renaming a non-locked ancestor is sufficient to fix
 		// this.
-		ls = ::RegRenameKey(rawAssocKey, nullptr, L"EndeskTempKey");
+		ls = ::RegRenameKey(rawAssocKey, nullptr, L"RenameTempKey");
 		if (ls != ERROR_SUCCESS) {
 			return false;
 		}
